@@ -1,0 +1,274 @@
+#직무동사카드 활용 진로탐색
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 진로 탐색 어드바이저</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
+        body { font-family: 'Pretendard', sans-serif; }
+        
+        .loading-dots:after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+
+        /* 인쇄 시 스타일 정의 */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; padding: 0 !important; }
+            .max-w-4xl { max-width: 100% !important; width: 100% !important; margin: 0 !important; box-shadow: none !important; border: none !important; }
+            .shadow-xl { box-shadow: none !important; }
+            .rounded-2xl { border-radius: 0 !important; }
+            .bg-slate-50 { background: white !important; }
+            section, .pt-4, footer { page-break-inside: avoid; }
+            #resultBox { display: block !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-indigo-600 p-8 text-white text-center no-print">
+            <div class="inline-block bg-indigo-500 text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider">Career Discovery Service</div>
+            <h1 class="text-3xl md:text-4xl font-bold">AI 진로·학업 설계 어드바이저</h1>
+        </div>
+
+        <!-- 인쇄 시 나타날 헤더 (웹에서는 숨김) -->
+        <div class="hidden print:block p-8 text-center border-b-2 border-indigo-600">
+            <h1 class="text-2xl font-bold text-indigo-600">AI 진로·학업 설계 보고서</h1>
+            <p class="text-gray-500 text-sm mt-1">싹ssac 심리상담센터 & AI 상담콘텐츠 연구소</p>
+        </div>
+
+        <div class="p-6 md:p-10 space-y-10">
+            <!-- 1. 관심 동사 입력 -->
+            <section class="no-print">
+                <h2 class="text-xl font-bold text-gray-800 mb-5 flex items-center">
+                    <span class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3 text-sm font-black">1</span>
+                    내가 찾은 관심 동사
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="verb1" placeholder="예: 숫자를 다루다" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition bg-gray-50 focus:bg-white">
+                    <input type="text" id="verb2" placeholder="예: 변화를 주도하다" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition bg-gray-50 focus:bg-white">
+                    <input type="text" id="verb3" placeholder="예: 손으로 만들다" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition bg-gray-50 focus:bg-white">
+                </div>
+            </section>
+
+            <!-- 2. 관심 분야 입력 -->
+            <section class="no-print">
+                <h2 class="text-xl font-bold text-gray-800 mb-5 flex items-center">
+                    <span class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3 text-sm font-black">2</span>
+                    내가 찾은 관심 분야
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="field1" placeholder="예: 경영회계세무" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition bg-gray-50 focus:bg-white">
+                    <input type="text" id="field2" placeholder="예: 보건의료" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition bg-gray-50 focus:bg-white">
+                    <input type="text" id="field3" placeholder="예: 전기·전자" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition bg-gray-50 focus:bg-white">
+                </div>
+            </section>
+
+            <!-- 3. 기타 정보 -->
+            <section class="no-print">
+                <h2 class="text-xl font-bold text-gray-800 mb-5 flex items-center">
+                    <span class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3 text-sm font-black">3</span>
+                    자기탐색 결과 종합 (가치관, LCSI 등)
+                </h2>
+                <textarea id="extraInfo" rows="3" placeholder="예: 가치관은 직업적 안정성, LCSI 결과는 우호형입니다." class="w-full p-5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition bg-gray-50 focus:bg-white resize-none"></textarea>
+            </section>
+
+            <!-- 4. 내신 등급 -->
+            <section class="no-print">
+                <h2 class="text-xl font-bold text-gray-800 mb-5 flex items-center">
+                    <span class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3 text-sm font-black">4</span>
+                    현재 내신 등급
+                </h2>
+                <input type="text" id="userGrade" placeholder="예: 2.5등급" class="max-w-xs w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition bg-gray-50 focus:bg-white">
+            </section>
+
+            <!-- Action Button -->
+            <div class="pt-4 no-print">
+                <button id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-5 rounded-xl shadow-lg transition duration-300 transform hover:-translate-y-1 text-lg">
+                    맞춤직업 탐색하기
+                </button>
+            </div>
+
+            <!-- Result Area -->
+            <div id="loading" class="hidden text-center py-12 no-print">
+                <div class="inline-block p-4 rounded-full bg-indigo-50 mb-4">
+                    <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <p class="text-indigo-600 font-bold text-xl uppercase tracking-tighter">데이터 기반 분석 중<span class="loading-dots"></span></p>
+                <p class="text-gray-500 mt-2">10가지 맞춤 직무와 학업 설계를 생성하고 있습니다.</p>
+            </div>
+
+            <div id="resultBox" class="hidden space-y-8">
+                <div class="flex items-center justify-between border-b-2 border-gray-100 pb-4">
+                    <h3 class="text-2xl font-black text-gray-900 border-l-4 border-indigo-600 pl-4">나의 진로 탐색 보고서</h3>
+                    <button id="printBtn" class="no-print text-xs font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-lg hover:bg-indigo-100 border border-indigo-200 transition-colors">
+                        PDF로 저장/출력
+                    </button>
+                </div>
+                
+                <div id="resultContent" class="space-y-2">
+                    <!-- 결과가 여기에 동적으로 생성됩니다 -->
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl mt-10">
+                    <p class="text-gray-600 text-sm leading-relaxed italic">
+                        본 정보는 커리어넷, 대학어디가, 2022 개정 교육과정 가이드를 참조하여 생성되었습니다. 학생 개개인의 학교 환경에 따라 실제 과목 개설 여부는 다를 수 있습니다.
+                    </p>
+                </div>
+
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="no-print w-full py-4 text-gray-400 text-sm font-semibold hover:text-indigo-600 transition">상단으로 이동</button>
+            </div>
+        </div>
+
+        <footer class="bg-gray-100 p-8 text-center border-t border-gray-200">
+            <p class="text-gray-700 font-bold mb-2">싹ssac 심리상담센터 & AI 상담콘텐츠 연구소</p>
+            <p class="text-gray-500 text-sm">
+                싹심리상담센터 홈페이지 : <a href="http://ssac-home.vercel.app" target="_blank" class="text-indigo-600 hover:underline">http://ssac-home.vercel.app</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // API 키는 Vercel 환경변수(Backend)에서 관리하므로 HTML에서는 안전하게 제외되었습니다.
+
+        // 인쇄 버튼 이벤트 리스너 추가
+        document.getElementById('printBtn').addEventListener('click', () => {
+            window.focus();
+            window.print();
+        });
+
+        async function generateCareerRecommendation() {
+            const verb1 = document.getElementById('verb1').value;
+            const verb2 = document.getElementById('verb2').value;
+            const verb3 = document.getElementById('verb3').value;
+            const field1 = document.getElementById('field1').value;
+            const field2 = document.getElementById('field2').value;
+            const field3 = document.getElementById('field3').value;
+            const extra = document.getElementById('extraInfo').value;
+            const grade = document.getElementById('userGrade').value;
+
+            if (!verb1 || !field1) {
+                alert("필수 항목을 입력해 주세요!");
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const resultBox = document.getElementById('resultBox');
+            const resultContent = document.getElementById('resultContent');
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50');
+            loading.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            const systemPrompt = `당신은 대한민국 고등학교의 전문 진로 진학 상담교사입니다. 
+사용자의 정보를 바탕으로 **10가지** 구체적인 직업을 추천하고 학업 가이드를 작성하세요.
+
+**작성 규칙 (필수):**
+1. 텍스트에서 아스테리스크(별표, **)를 절대로 사용하지 마세요. 
+2. 보고서 형식을 갖추어 일목요연하고 깔끔하게 작성하세요.
+3. 내신 등급을 고려하여 현실적인 대학 진학 및 준비 방향을 포함하세요.
+
+**각 직업별 항목:**
+- [직업명]
+- 추천 사유: 데이터 기반 연관성 분석
+- 주요 업무: 실제 수행하는 전문 업무
+- 고교학점제 가이드: 이수해야 할 핵심 기초 및 일반/진로 선택 과목
+- 미래 전망: 직업적 안정성과 비전
+
+**데이터 출처:** 커리어넷, 대학어디가, 고교학점제 가이드`;
+
+            const userQuery = `
+- 관심 동사: ${verb1}, ${verb2}, ${verb3}
+- 관심 분야: ${field1}, ${field2}, ${field3}
+- 성향 및 가치관: ${extra}
+- 현재 내신 등급: ${grade}
+`;
+
+            let retries = 0;
+            const maxRetries = 5;
+
+            async function callApi(attempt) {
+                try {
+                    // 이제 구글로 직접 통신하지 않고 Vercel의 Serverless Function(/api/generate)으로만 요청을 보냅니다.
+                    const response = await fetch('/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: userQuery }] }],
+                            systemInstruction: { parts: [{ text: systemPrompt }] }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || '자체 API 서버 요청 실패');
+                    }
+
+                    const data = await response.json();
+                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    
+                    if (text) {
+                        const cleanedText = text.replace(/\*\*/g, ''); 
+                        const lines = cleanedText.split('\n');
+                        
+                        let htmlContent = '<div class="space-y-8">';
+                        
+                        lines.forEach(line => {
+                            const trimmedLine = line.trim();
+                            if (!trimmedLine) return;
+
+                            if (trimmedLine.match(/^\d+\./) || (trimmedLine.startsWith('[') && trimmedLine.endsWith(']'))) {
+                                htmlContent += `<div class="mt-8 mb-4"><h4 class="text-xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-1">${trimmedLine}</h4></div>`;
+                            } else if (trimmedLine.startsWith('-') || trimmedLine.startsWith('•')) {
+                                htmlContent += `<div class="ml-4 mb-2 flex items-start"><span class="text-indigo-500 mr-2">•</span><p class="text-gray-700">${trimmedLine.substring(1).trim()}</p></div>`;
+                            } else {
+                                htmlContent += `<p class="text-gray-600 mb-2">${trimmedLine}</p>`;
+                            }
+                        });
+                        
+                        htmlContent += '</div>';
+
+                        resultContent.innerHTML = htmlContent;
+                        resultBox.classList.remove('hidden');
+                        resultBox.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        throw new Error('응답이 비어있음');
+                    }
+                } catch (error) {
+                    if (attempt < maxRetries) {
+                        const delay = Math.pow(2, attempt) * 1000;
+                        setTimeout(() => callApi(attempt + 1), delay);
+                    } else {
+                        resultContent.innerHTML = "<div class='text-red-500 font-bold p-6 bg-red-50 rounded-xl text-center'>네트워크 문제로 결과를 가져오지 못했습니다. 다시 시도해 주세요.</div>";
+                        resultBox.classList.remove('hidden');
+                    }
+                } finally {
+                    loading.classList.add('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50');
+                }
+            }
+
+            callApi(0);
+        }
+
+        document.getElementById('submitBtn').addEventListener('click', generateCareerRecommendation);
+    </script>
+</body>
+</html>
