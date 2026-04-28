@@ -208,6 +208,7 @@
                     // 이제 구글로 직접 통신하지 않고 Vercel의 Serverless Function(/api/generate)으로만 요청을 보냅니다.
                     const response = await fetch('/api/generate', {
                         method: 'POST',
+                        credentials: 'include', // Vercel 미리보기 보안(SSO) 우회 헤더
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             contents: [{ parts: [{ text: userQuery }] }],
