@@ -16,7 +16,7 @@ export default async function handler(req, res) {
         const { contents, systemInstruction } = req.body;
 
         // 구글 제미나이 서버로 요청을 보냅니다 (이 과정은 사용자에게 보이지 않는 서버 단에서 이루어집니다).
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents, systemInstruction })
