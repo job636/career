@@ -256,8 +256,7 @@
                         const delay = Math.pow(2, attempt) * 1000;
                         setTimeout(() => callApi(attempt + 1), delay);
                     } else {
-                        resultContent.innerHTML = "<div class='text-red-500 font-bold p-6 bg-red-50 rounded-xl text-center'>네트워크 문제로 결과를 가져오지 못했습니다. 다시 시도해 주세요.</div>";
-                        resultBox.classList.remove('hidden');
+                        resultContent.innerHTML = `<div class='text-red-500 font-bold p-6 bg-red-50 rounded-xl text-center'>서버 오류 발생: ${error.message}</div>`;    resultBox.classList.remove('hidden');
                     }
                 } finally {
                     loading.classList.add('hidden');
