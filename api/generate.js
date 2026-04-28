@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Gemini API Error:', errorText);
-            return res.status(response.status).json({ error: '구글 AI 서버 요청 중 오류가 발생했습니다.' });
+            return res.status(response.status).json({ error: '구글 AI 서버 요청 중 오류가 발생했습니다.', details: errorText });
         }
 
         const data = await response.json();
